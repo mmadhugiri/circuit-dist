@@ -28,7 +28,10 @@ When you write a note, Circuit classifies it first:
 
 - **Topic** → generates a full response
 - **Principle** → absorbed silently into your context (shapes all future responses, generates nothing)
-- **List / Crystal / Reference / Schedule** → saved to the appropriate directory, no response
+- **Crystal** → a distilled permanent insight you want preserved — a thesis, a decision, a belief. Saved, no response.
+- **List** → a structured list you maintain over time — a watchlist, reading list, set of contacts. Saved, no response.
+- **Reference** → an external data point surfaced by a connector. Saved to `references/`, no response.
+- **Schedule** → a recurring note trigger — "every Monday, ask me about my week." Saved, fires on cadence.
 
 For topics, the generation pipeline is:
 
@@ -38,21 +41,26 @@ For topics, the generation pipeline is:
 4. **Voice** — a third LLM call checks whether the response sounds like you, based on your principles
 5. **Output** — rendered to `outputs/`, emailed if configured, written to the trace log
 
-Judge and voice run in parallel. Neither blocks the output — they annotate it.
+Judge and voice run in parallel after generation. Neither blocks the output — they annotate it.
 
 ---
 
-## Three independent LLMs
+## Three calls, three models
 
-Generator, judge, and voice are independently configurable. You can generate with Claude Sonnet, grade with Claude Haiku, and check voice with the same Sonnet — or use entirely different providers for each.
+Each of the three LLM calls in the pipeline — generate, judge, voice — is independently configurable. You might use a capable model for generation, a faster cheaper one for voice review, and a different provider entirely for grading. Or the same model for all three.
 
 ```
-CIRCUIT_PROVIDER=claude-cli          # generator
-CIRCUIT_JUDGE_PROVIDER=claude-cli    # grader
-CIRCUIT_VOICE_PROVIDER=claude-cli    # voice reviewer
+CIRCUIT_PROVIDER=anthropic          # generator
+CIRCUIT_MODEL=claude-sonnet-4-6
+
+CIRCUIT_JUDGE_PROVIDER=anthropic    # grader — can differ
+CIRCUIT_JUDGE_MODEL=claude-sonnet-4-6
+
+CIRCUIT_VOICE_PROVIDER=anthropic    # voice reviewer — can differ
+CIRCUIT_VOICE_MODEL=claude-haiku-4-5-20251001
 ```
 
-The default is `claude-cli` for all three — uses your Claude subscription, no API key needed.
+Supported providers: `anthropic`, `openai`, `xai`, `gemini`, `ollama`.
 
 ---
 
@@ -64,7 +72,7 @@ Circuit has three memory layers, each operating at a different timescale:
 Every file in `context/` is loaded as a principle on every call. If you write "I think in systems, not steps" or "I only want to hear about trades I'd hold for 6+ months" — that shapes the very next response. No delay, no summarization.
 
 **Prior context (rolling)**
-The trace log tracks every intent you've ever planted and every response generated. Before each new seed, Circuit pulls recent prior intent summaries and loads them in. This is why saying "next verse" works — the Gita conversation is in prior context.
+The trace log tracks every intent you've ever planted and every response generated. Before each new seed, Circuit pulls recent prior intent summaries and loads them in. If you've been working through a topic across several notes, the thread is available — you don't have to re-establish it.
 
 **Consolidation (long-term)**
 A background agent sweeps your notes, outputs, and references daily, weekly, and monthly — distilling patterns the seed loads into prior context. The consolidations get sharper over time. Routine days (no notable thinking) cost nothing — they get a silent marker, no LLM call.
@@ -93,7 +101,7 @@ Two tiers:
 - **Tier 2 (auto)** — read-only data fetches. Execute immediately; seed sees the result.
 - **Tier 1 (propose)** — mutations (placing a trade, sending a message). Queued as proposals; require your approval in the UI before executing.
 
-This is how the seed can say "your NVDA position is up 8.3% today" rather than hedging with "I don't have access to current prices."
+This is how the seed can say "your position is up 8.3% today" rather than hedging with "I don't have access to current prices."
 
 ---
 
