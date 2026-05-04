@@ -10,11 +10,25 @@ The further you get, the more it knows. The more it knows, the less you have to 
 
 ## Install
 
+**macOS**
 ```sh
 brew install mmadhugiri/circuit/circuit
 ```
 
-Or download the binary for your platform from the [releases page](https://github.com/mmadhugiri/circuit-dist/releases).
+**Linux**
+```sh
+# amd64
+curl -L https://github.com/mmadhugiri/circuit-dist/releases/latest/download/circuit-linux-amd64 -o circuit
+chmod +x circuit
+sudo mv circuit /usr/local/bin/
+
+# arm64
+curl -L https://github.com/mmadhugiri/circuit-dist/releases/latest/download/circuit-linux-arm64 -o circuit
+chmod +x circuit
+sudo mv circuit /usr/local/bin/
+```
+
+Or download any binary directly from the [releases page](https://github.com/mmadhugiri/circuit-dist/releases).
 
 ---
 
